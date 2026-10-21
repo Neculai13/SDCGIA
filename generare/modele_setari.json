@@ -1,0 +1,185 @@
+[
+  {
+    "experiment": "principal",
+    "model": "gemma3:1b",
+    "backend": "ollama",
+    "texts": 219,
+    "model_digests": [
+      "97558784bdc9175075a72655bf360b15da17df6b3b9e5182af9f8c0c8e58ba7c"
+    ],
+    "sampling": [
+      {
+        "temperature": 0.7,
+        "top_k": 20,
+        "top_p": 0.9
+      }
+    ],
+    "per_request_parameters": "prompturi.jsonl"
+  },
+  {
+    "experiment": "principal",
+    "model": "gemma3:270m",
+    "backend": "ollama",
+    "texts": 150,
+    "model_digests": [
+      "e7d36fb2c3b3293cfe56d55889867a064b3a2b22e98335f2e6e8a387e081d6be"
+    ],
+    "sampling": [
+      {
+        "temperature": 0.7,
+        "top_k": 20,
+        "top_p": 0.9
+      }
+    ],
+    "per_request_parameters": "prompturi.jsonl"
+  },
+  {
+    "experiment": "principal",
+    "model": "qwen2.5-0.5b-instruct-q4_k_m",
+    "backend": "llama.cpp",
+    "texts": 200,
+    "model_digests": [
+      "74a4da8c9fdbcd15bd1f6d01d621410d31c6fc00986f5eb687824e7b93d7a9db"
+    ],
+    "sampling": [
+      {
+        "stream": false,
+        "temperature": 0.7,
+        "top_k": 20,
+        "top_p": 0.9
+      }
+    ],
+    "per_request_parameters": "prompturi.jsonl"
+  },
+  {
+    "experiment": "principal",
+    "model": "qwen2.5-1.5b-instruct-q4_k_m",
+    "backend": "llama.cpp",
+    "texts": 200,
+    "model_digests": [
+      "6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e"
+    ],
+    "sampling": [
+      {
+        "stream": false,
+        "temperature": 0.7,
+        "top_k": 20,
+        "top_p": 0.9
+      }
+    ],
+    "per_request_parameters": "prompturi.jsonl"
+  },
+  {
+    "experiment": "principal",
+    "model": "qwen2.5-3b-instruct-q4_k_m",
+    "backend": "llama.cpp",
+    "texts": 200,
+    "model_digests": [
+      "626b4a6678b86442240e33df819e00132d3ba7dddfe1cdc4fbb18e0a9615c62d"
+    ],
+    "sampling": [
+      {
+        "stream": false,
+        "temperature": 0.7,
+        "top_k": 20,
+        "top_p": 0.9
+      }
+    ],
+    "per_request_parameters": "prompturi.jsonl"
+  },
+  {
+    "experiment": "principal",
+    "model": "qwen3.5:0.8b",
+    "backend": "ollama",
+    "texts": 861,
+    "model_digests": [
+      "de63045f29755d4721c09d54c9b45c2dadb644f4fd7d604d4cac90d96049971c"
+    ],
+    "sampling": [
+      {
+        "temperature": 0.7,
+        "top_k": 20,
+        "top_p": 0.9
+      }
+    ],
+    "per_request_parameters": "prompturi.jsonl"
+  },
+  {
+    "experiment": "principal",
+    "model": "qwen3.5:2b",
+    "backend": "ollama",
+    "texts": 547,
+    "model_digests": [
+      "0689d44085e06d165161a8a9a1731344278cfb5aade63a3c3dbdb48ab54b130a"
+    ],
+    "sampling": [
+      {
+        "temperature": 0.7,
+        "top_k": 20,
+        "top_p": 0.9
+      }
+    ],
+    "per_request_parameters": "prompturi.jsonl"
+  },
+  {
+    "experiment": "principal",
+    "model": "qwen3.5:4b",
+    "backend": "ollama",
+    "texts": 213,
+    "model_digests": [
+      "d8b0f5e9760cd1682034f292d7ef72ec46f432149be0df7574bf2d6e92e38c04"
+    ],
+    "sampling": [
+      {
+        "temperature": 0.7,
+        "top_k": 20,
+        "top_p": 0.9
+      }
+    ],
+    "per_request_parameters": "prompturi.jsonl"
+  },
+  {
+    "experiment": "suplimentar",
+    "model": "qwen2.5:1.5b",
+    "backend": "ollama",
+    "texts": 60,
+    "model_digests": [
+      "65ec06548149b04c096a120e4a6da9d4017ea809c91734ea5631e89f96ddc57b"
+    ],
+    "sampling": [
+      {
+        "temperature": 0.3,
+        "top_k": 20,
+        "top_p": 0.8
+      },
+      {
+        "temperature": 0.9,
+        "top_k": 20,
+        "top_p": 0.95
+      }
+    ],
+    "per_request_parameters": "prompturi.jsonl"
+  },
+  {
+    "experiment": "suplimentar",
+    "model": "qwen2.5:3b",
+    "backend": "ollama",
+    "texts": 60,
+    "model_digests": [
+      "357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b"
+    ],
+    "sampling": [
+      {
+        "temperature": 0.3,
+        "top_k": 20,
+        "top_p": 0.8
+      },
+      {
+        "temperature": 0.9,
+        "top_k": 20,
+        "top_p": 0.95
+      }
+    ],
+    "per_request_parameters": "prompturi.jsonl"
+  }
+]

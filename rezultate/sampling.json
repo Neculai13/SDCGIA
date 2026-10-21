@@ -1,0 +1,159 @@
+{
+  "experiment_id": "qwen25_sampling_supplement_v1",
+  "threshold": 0.5,
+  "overall": {
+    "n": 150,
+    "human_n": 30,
+    "ai_n": 120,
+    "tp": 120,
+    "tn": 30,
+    "fp": 0,
+    "fn": 0,
+    "accuracy": 1.0,
+    "false_positive_rate": 0.0,
+    "false_negative_rate": 0.0,
+    "ai_recall": 1.0,
+    "fpr_wilson95": [
+      0,
+      0.11351339317396321
+    ],
+    "ai_recall_wilson95": [
+      0.9689808335812982,
+      1
+    ],
+    "balanced_accuracy": 1.0,
+    "brier": 0.0,
+    "log_loss": -0.0,
+    "ece_10_equal_width_confidence_bins": 0.0
+  },
+  "unique_human_controls": 30,
+  "attempted_ai": 120,
+  "included_nonempty_ai": 120,
+  "per_cell": {
+    "qwen2.5:1.5b / conservative": {
+      "n": 60,
+      "human_n": 30,
+      "ai_n": 30,
+      "tp": 30,
+      "tn": 30,
+      "fp": 0,
+      "fn": 0,
+      "accuracy": 1.0,
+      "false_positive_rate": 0.0,
+      "false_negative_rate": 0.0,
+      "ai_recall": 1.0,
+      "fpr_wilson95": [
+        0,
+        0.11351339317396321
+      ],
+      "ai_recall_wilson95": [
+        0.8864866068260369,
+        1
+      ],
+      "balanced_accuracy": 1.0,
+      "brier": 0.0,
+      "log_loss": -0.0,
+      "ece_10_equal_width_confidence_bins": 0.0
+    },
+    "qwen2.5:1.5b / varied": {
+      "n": 60,
+      "human_n": 30,
+      "ai_n": 30,
+      "tp": 30,
+      "tn": 30,
+      "fp": 0,
+      "fn": 0,
+      "accuracy": 1.0,
+      "false_positive_rate": 0.0,
+      "false_negative_rate": 0.0,
+      "ai_recall": 1.0,
+      "fpr_wilson95": [
+        0,
+        0.11351339317396321
+      ],
+      "ai_recall_wilson95": [
+        0.8864866068260369,
+        1
+      ],
+      "balanced_accuracy": 1.0,
+      "brier": 0.0,
+      "log_loss": -0.0,
+      "ece_10_equal_width_confidence_bins": 0.0
+    },
+    "qwen2.5:3b / conservative": {
+      "n": 60,
+      "human_n": 30,
+      "ai_n": 30,
+      "tp": 30,
+      "tn": 30,
+      "fp": 0,
+      "fn": 0,
+      "accuracy": 1.0,
+      "false_positive_rate": 0.0,
+      "false_negative_rate": 0.0,
+      "ai_recall": 1.0,
+      "fpr_wilson95": [
+        0,
+        0.11351339317396321
+      ],
+      "ai_recall_wilson95": [
+        0.8864866068260369,
+        1
+      ],
+      "balanced_accuracy": 1.0,
+      "brier": 0.0,
+      "log_loss": -0.0,
+      "ece_10_equal_width_confidence_bins": 0.0
+    },
+    "qwen2.5:3b / varied": {
+      "n": 60,
+      "human_n": 30,
+      "ai_n": 30,
+      "tp": 30,
+      "tn": 30,
+      "fp": 0,
+      "fn": 0,
+      "accuracy": 1.0,
+      "false_positive_rate": 0.0,
+      "false_negative_rate": 0.0,
+      "ai_recall": 1.0,
+      "fpr_wilson95": [
+        0,
+        0.11351339317396321
+      ],
+      "ai_recall_wilson95": [
+        0.8864866068260369,
+        1
+      ],
+      "balanced_accuracy": 1.0,
+      "brier": 0.0,
+      "log_loss": -0.0,
+      "ece_10_equal_width_confidence_bins": 0.0
+    }
+  },
+  "sampling_paired_tests": {
+    "qwen2.5:1.5b": {
+      "paired_sources": 30,
+      "conservative_only_detected": 0,
+      "varied_only_detected": 0,
+      "mcnemar_exact_two_sided_p": 1.0
+    },
+    "qwen2.5:3b": {
+      "paired_sources": 30,
+      "conservative_only_detected": 0,
+      "varied_only_detected": 0,
+      "mcnemar_exact_two_sided_p": 1.0
+    }
+  },
+  "probabilities_at_extremes": 150,
+  "caveats": [
+    "Human controls are 80–99 words; AI target is 100 words. This length mismatch limits interpretation.",
+    "Historical human authorship presumed; not certified.",
+    "Original IDs, known similarity components and normalized exact text are disjoint. Semantic independence is not certified.",
+    "All eight generator variants were represented in original training; these are new sources, not unseen model families.",
+    "Only 30 source clusters; comparisons are paired, not 120 independent sources.",
+    "Global accuracy uses 120 planned AI texts and only 30 unique human controls, unlike the original test balance.",
+    "The same 30 human controls are reused for every cell; do not sum subgroup denominators.",
+    "Paired tests are descriptive, unadjusted for multiple comparisons; small samples cannot establish a generator ranking."
+  ]
+}
