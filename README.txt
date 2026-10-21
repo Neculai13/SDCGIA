@@ -6,6 +6,7 @@ Continut:
   generare/ - codul de generare, modelele, prompturile si setarile folosite
   rezultate/ - rezultate globale si per model-sursa, pentru cele doua experimente
   raport.pdf - descrierea implementarii, rezultatele si limitele
+  date/SDCGIA_human_ai_v1.zip - datele de antrenare, calibrare si test
 
 Detector: Unsloth Qwen3.5-4B, ajustat cu LoRA, antrenat si evaluat in Colab pe T4.
 Corpus: 3.767 texte human si 2.590 texte AI.
@@ -15,8 +16,19 @@ profiluri de sampling. Acest rezultat se raporteaza separat de testul principal.
 
 Notebookul pastreaza rezultatele exportate din Colab; au fost omise celulele
 temporare de diagnostic. Nu reprezinta o noua rulare integrala a experimentului.
-Pentru rerulare sunt necesare GPU in Colab si bundle-ul de date oferit separat.
-Articolele integrale si modelul salvat nu sunt incluse in acest folder.
+Pentru rerulare este necesar un GPU in Colab. Datele sunt incluse in arhiva
+date/SDCGIA_human_ai_v1.zip (4,35 MiB). Modelul salvat nu este inclus.
+
+Date pentru Colab:
+  1. Descarca date/SDCGIA_human_ai_v1.zip din repository.
+  2. Incarca arhiva in Google Drive, in MyDrive/SDCGIA/colab/.
+  3. In notebook, BUNDLE_PATH trebuie sa fie:
+     /content/drive/MyDrive/SDCGIA/colab/SDCGIA_human_ai_v1.zip
+  4. Nu dezarhiva manual: notebookul verifica si extrage bundle-ul.
+Arhiva contine textele in formatul modelului si metadatele pentru cele trei
+partitii: train 4.448, calibration 955, test 954. Numele v1 al bundle-ului este
+cel folosit si de notebookul adaptat; nu indica un alt corpus.
+Articolele integrale din arhiva isi pastreaza drepturile surselor originale.
 
 Generare locala (Python 3.12; modelele trebuie instalate separat):
   python generare/genereaza.py --model qwen3.5:0.8b --limit 1
