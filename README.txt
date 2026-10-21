@@ -2,11 +2,12 @@ SDCGIA - Detectarea textelor umane si generate de AI
 Tema 6: Decision model cu Unsloth
 
 Continut:
-  notebook.ipynb - notebookul adaptat, cu rezultatele din Colab
+  notebook.ipynb - antrenare, calibrare si evaluare automata in Colab
   generare/ - codul de generare, modelele, prompturile si setarile folosite
   rezultate/ - rezultate globale si per model-sursa, pentru cele doua experimente
   raport.pdf - descrierea implementarii, rezultatele si limitele
   date/SDCGIA_human_ai_v1.zip - datele de antrenare, calibrare si test
+  date/supplementary_evaluation.zip - textele lotului suplimentar deja generat
 
 Detector: Unsloth Qwen3.5-4B, ajustat cu LoRA, antrenat si evaluat in Colab pe T4.
 Corpus: 3.767 texte human si 2.590 texte AI.
@@ -14,23 +15,37 @@ Test principal: 952/954 clasificari corecte (99,79%), cu 1 FP si 1 FN.
 Test suplimentar: 150/150 corecte, pe 30 surse noi, cu doua modele si doua
 profiluri de sampling. Acest rezultat se raporteaza separat de testul principal.
 
-Notebookul pastreaza rezultatele exportate din Colab; au fost omise celulele
-temporare de diagnostic. Nu reprezinta o noua rulare integrala a experimentului.
-Pentru rerulare este necesar un GPU in Colab. Datele sunt incluse in arhiva
-date/SDCGIA_human_ai_v1.zip (4,35 MiB). Modelul salvat nu este inclus.
+Rulare in Colab:
+  https://colab.research.google.com/github/Neculai13/SDCGIA/blob/main/notebook.ipynb
 
-Date pentru Colab:
-  1. Descarca date/SDCGIA_human_ai_v1.zip din repository.
-  2. Incarca arhiva in Google Drive, in MyDrive/SDCGIA/colab/.
-  3. In notebook, BUNDLE_PATH trebuie sa fie:
-     /content/drive/MyDrive/SDCGIA/colab/SDCGIA_human_ai_v1.zip
-  4. Nu dezarhiva manual: notebookul verifica si extrage bundle-ul.
+  1. Deschide linkul intr-o sesiune noua.
+  2. Selecteaza Runtime > Change runtime type > T4 GPU.
+  3. Apasa Runtime > Run all.
+
+Notebookul descarca singur ambele arhive din GitHub si verifica hash-urile.
+Nu necesita Ollama, generare locala, incarcari manuale sau fisierele noastre din
+Google Drive. Instaleaza versiunile principale fixate, antreneaza de la zero un
+LoRA nou, calibreaza si evalueaza pe cele doua loturi. Modelul de baza se descarca
+din Hugging Face. Disponibilitatea GPU si accesul la descarcari depind de Colab.
+
+Rularea poate dura cateva ore. Rezultatele se scriu intr-un director nou din
+/content/SDCGIA/runs/ si se descarca la final ca experiment_colab.zip, impreuna
+cu modelul calibrat. /content este temporar; o sesiune intrerupta poate pierde
+fisierele. Nu se suprascriu rezultatele istorice din acest repository.
+
+Aceasta versiune a notebookului are verificarile locale de cod si date facute,
+dar nu a fost inca rerulata integral pe un GPU nou. Pot fi necesare ajustari daca
+mediul Colab sau dependentele nu mai sunt compatibile. Nu este garantata obtinerea
+exact a scorurilor istorice de mai sus.
+
+Arhiva principala are 4,35 MiB; modelul salvat istoric nu este inclus.
 Arhiva contine textele in formatul modelului si metadatele pentru cele trei
 partitii: train 4.448, calibration 955, test 954. Numele v1 al bundle-ului este
 cel folosit si de notebookul adaptat; nu indica un alt corpus.
 Articolele integrale din arhiva isi pastreaza drepturile surselor originale.
 
-Generare locala (Python 3.12; modelele trebuie instalate separat):
+Generare locala optionala, pentru alte texte (nu este necesara rularii Colab):
+Python 3.12; modelele trebuie instalate separat.
   python generare/genereaza.py --model qwen3.5:0.8b --limit 1
 Comanda verifica cererea, fara a genera. Pentru generare reala se adauga --run.
 Ollama foloseste implicit 127.0.0.1:11434; pentru llama.cpp se indica --url
