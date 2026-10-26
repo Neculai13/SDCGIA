@@ -1,0 +1,9 @@
+{
+  "accuracy": 1.0,
+  "ece": 2.6213561321597467e-09,
+  "loss": 2.6213559341796617e-09,
+  "record_accuracy": 1.0,
+  "fitted_types": [
+    0
+  ]
+}

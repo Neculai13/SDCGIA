@@ -1,0 +1,300 @@
+Detectarea originii textelor de știri în limba română
+
+## Rezumat și obiective
+
+Lucrarea investighează în ce măsură un model lingvistic adaptat pentru decizie binară poate diferenția articole de știri în limba română de texte sintetice. Implementarea pornește de la notebookul Unsloth și folosește Qwen3.5-4B, adaptoare LoRA și un cap de decizie. Rezultatele sunt organizate în ordinea în care au apărut, pentru a păstra distincția dintre dezvoltare, evaluare și modificarea ulterioară a corpusului. [1, 2]
+
+În prima încercare, denumită în continuare **v1**, testul intern a avut 952/954 clasificări corecte, cu o acuratețe de **99,79%**. Un supliment de sampling cu 120 de texte Qwen și 30 de controale umane a produs 150/150 clasificări corecte. Aceste rezultate au motivat verificarea pe generatoare care nu figurau în antrenarea inițială. [3, 4]
+
+Evaluarea locală ulterioară a aceleiași versiuni calibrate a identificat doar **283/702 texte ChatGPT (40,31% recall AI)**. Cele 419 fals negative arată că performanța internă nu putea fi extrapolată la această serie de texte. Toate cele 100 de controale umane asociate evaluării locale au fost clasificate corect. [5]
+
+A doua încercare, păstrată sub numele operațional **v3**, a extins corpusul de la 6.357 la 7.950 de texte și a inclus generările suplimentare. Testul intern nou a avut 1.199/1.199 clasificări corecte. Acest rezultat descrie învățarea și evaluarea în corpusul extins. Nu demonstrează rezolvarea generalizării: generatoarele sunt cunoscute în antrenare, împărțirea diferă, iar unele surse fuseseră evaluate în etapele anterioare. [6]
+
+**Întrebarea de cercetare:** cât de fidel se păstrează performanța unui detector adaptat pe un corpus restrâns atunci când întâlnește texte generate ulterior și cum se schimbă rezultatul intern după extinderea corpusului?
+
+Contribuția practică este un flux verificabil de pregătire a datelor, antrenare, calibrare și inferență, însoțit de rezultate per generator și exemple calitative. Nu propunem un detector universal de autorat și nu atribuim cauzal diferențele unei singure proprietăți a modelelor.
+
+**Cuvinte-cheie:** detecție de text AI, limba română, model de decizie, LoRA, calibrare, generalizare.
+
+
+## 1. Cerința și delimitarea studiului
+
+| Componentă a temei 6 | Realizarea efectivă |
+|---|---|
+| Pornirea de la notebookul Unsloth | Etapă de familiarizare, urmată de adaptarea formatului pentru știri în română. |
+| Decizie uman / AI | Întrebare de tip choice, două clase, probabilitate AI și prag fix 0,5. |
+| Modele locale și dimensiuni diferite | Qwen3.5, Qwen2.5 și Gemma 3, în mai multe dimensiuni. Qwen2.5 inițial a fost servit prin llama.cpp. |
+| Variația sampling-ului | Profil principal comun, apoi experiment separat cu două profiluri Qwen2.5. |
+| Antrenare, calibrare și evaluare | Partiții distincte, rezultate globale și per sursă, calibrare dedicată. |
+| Generatoare dificil de detectat | Analiză descriptivă a loturilor GPT ulterioare, fără clasament universal. |
+| Livrabile | Notebookuri, date, prompturi și setări, predicții, rezultate și raport în GitHub. |
+
+Tema 6 cere un model de decizie, nu o justificare generată liber. Cerința solicită și generatoare servite local cu Ollama, variația dimensiunii și sampling-ului, acuratețe și rată de fals pozitive per model-sursă. [1]
+
+**Abateri și extensii declarate.** Cele 600 de texte Qwen2.5 din v1 provin din llama.cpp, nu din Ollama. Experimentul suplimentar a folosit ulterior Ollama pentru Qwen2.5 1.5B și 3B, cu două profiluri. Generările ChatGPT reprezintă o extensie a evaluării și nu substituie cerința de generare locală. Nu susținem că fiecare etapă reprezintă o replicare identică a notebookului original.
+
+**Unități de analiză.** Un text este o observație de clasificare. Articolul uman și variantele generate din contextul lui formează o sursă comună. Variantele aceleiași surse nu sunt observații independente pentru inferență statistică. Numele v1 și v3 desemnează două artefacte distincte; nu presupun existența unei etape experimentale v2 raportate aici.
+
+**Protocol în trei etape.** În v1 măsurăm separarea internă a unui corpus cu generatoare cunoscute. Ulterior, păstrăm detectorul înghețat și evaluăm textele GPT pe CPU. În v3 antrenăm un adaptor nou pe date extinse și măsurăm un alt test intern. Aceste etape răspund unor întrebări diferite, deci scorurile lor nu sunt estimări interschimbabile ale aceleiași performanțe externe.
+
+
+## 2. Corpusul și constituirea partițiilor
+
+Textele presupuse umane provin din arhiva UNIMEDIA din 2018. Pentru v1, selecția de 3.767 de articole acoperă intervalul 1 octombrie - 17 decembrie 2018. Eticheta umană este o prezumție bazată pe proveniența istorică, nu o certificare independentă a fiecărei propoziții. Pot exista republicări, comunicate, citate sau modificări ulterioare ale paginii. [3]
+
+Colectarea și prelucrarea au păstrat corpul articolului, identificatorii, URL-ul sursei, data disponibilă și numărul de cuvinte. Duplicatele exacte și variantele aceleiași surse au fost tratate înaintea împărțirii. Selecția umană inițială avusese un prag de 100 de cuvinte; exportul v1 a păstrat toate intrările cu conținut din acea selecție. Criteriul de a păstra textele cu conținut nu a readus automat articolele scurte excluse anterior.
+
+În v3 am reunificat inventarul disponibil și am inclus textele eligibile cu conținut fără un nou prag de lungime. Aceasta explică diferența de volum față de selecția umană v1. Textele sunt păstrate integral. Nu am eliminat ulterior răspunsurile AI slabe pentru a îmbunătăți artificial scorul. [6]
+
+| Versiune / partiție | Uman | AI | Total |
+|---|---|---|---|
+| v1 - antrenare | 2637 | 1811 | 4448 |
+| v1 - calibrare | 565 | 390 | 955 |
+| v1 - test | 565 | 389 | 954 |
+| v1 - total | 3767 | 2590 | 6357 |
+| v3 - antrenare | 3166 | 2391 | 5557 |
+| v3 - calibrare | 679 | 515 | 1194 |
+| v3 - test | 679 | 520 | 1199 |
+| v3 - total | 4524 | 3426 | 7950 |
+
+Împărțirea urmărește proporțiile aproximative 70/15/15, cu seed 3407, dar operează pe surse și grupuri de similitudine, nu independent pe fiecare text. Variantele umane și AI ale aceleiași surse rămân împreună. Verificările nu au găsit intersecții între partiții pentru identificatorul de sursă, grup sau textul normalizat exact. Aceste verificări nu certifică absența tuturor parafrazelor sau independența semantică a evenimentelor.
+
+Corpusul v3 conține 3.957 de grupuri și a folosit 2.713 perechi de similitudine lexicală. Regruparea și schimbarea corpusului produc alte partiții decât în v1. Testul v3 nu este o repetare a testului v1 pe aceleași observații. [3, 6]
+
+
+## 3. Generarea textelor și configurațiile folosite
+
+| Generator / variantă | Texte v1 | Texte v3 |
+|---|---|---|
+| Qwen3.5 0.8B | 861 | 875 |
+| Qwen3.5 2B | 547 | 547 |
+| Qwen3.5 4B | 213 | 213 |
+| Qwen2.5 0.5B, llama.cpp | 200 | 200 |
+| Qwen2.5 1.5B, llama.cpp | 200 | 200 |
+| Qwen2.5 3B, llama.cpp | 200 | 200 |
+| Gemma 3 270M | 150 | 150 |
+| Gemma 3 1B | 219 | 219 |
+| Qwen2.5 1.5B / 3B, supliment Ollama | 0 | 120 |
+| Șapte variante ChatGPT, câte 100 | 0 | 700 |
+| Pilot ChatGPT, model specific neidentificat | 0 | 2 |
+| Total | 2590 | 3426 |
+
+Diferența Qwen3.5 0.8B include 14 răspunsuri pilot păstrate suplimentar în v3. Cele șapte etichete web sunt GPT-5.6 Sol, GPT-5.6 Luna Light, GPT-5.6 Terra Light, GPT-6 Luna Light, GPT-6 Sol Light, GPT-6 Astra Light și GPT-6.1 Sol Light. Acestea sunt denumirile consemnate din interfață, nu identificatori API verificați. Pentru două piloturi a fost înregistrat doar efortul de raționare, fără model specific. [3, 5, 6]
+
+**Construirea cererii.** Pentru fiecare sursă au fost pregătite tema generală, data de referință, entități candidate, date/cifre extrase și lungimea dorită. Corpul articolului, titlul original și o listă de fapte esențiale nu au fost furnizate. Totuși, numele și cifrele pot transmite context. Extragerea prin reguli poate produce nume incomplete sau asocieri greșite; nu pretindem o validare semantică exhaustivă.
+
+Mesajul de sistem cere o știre în română, în paragrafe, și permite un eveniment fictiv plauzibil. Interzice metacomentariile, cererea de context suplimentar, repetarea instrucțiunilor și umplerea prin repetiții. Perechea uman-AI are, prin urmare, context comun, nu identitate factuală garantată. Textele sintetice nu trebuie reutilizate drept informație jurnalistică verificată.
+
+**Sampling.** Profilul principal local folosește temperature 0,7, top_p 0,9 și top_k 20. Configurațiile Ollama înregistrează seed de bază 3407 și think=false; opțiunile efective și bugetele de tokeni se păstrează per cerere. Suplimentul Qwen compară temperature/top_p 0,3/0,8 cu 0,9/0,95. Nu inventăm parametri numerici pentru interfața ChatGPT, care nu i-a expus. [4]
+
+Au fost incluse toate răspunsurile ne goale eligibile, inclusiv cele scurte, în altă limbă sau cu probleme de redactare. De exemplu, v1 conține 150 de răspunsuri ne goale Gemma 270M din 305 înregistrări, iar 155 de ieșiri goale au rămas în afara corpusului. Această politică favorizează fidelitatea față de proces, dar impune prudență: unele texte AI pot fi mult mai ușor de separat decât știrile sintetice fluente.
+
+
+## 4. Modelul de decizie și protocolul tehnic
+
+Fiecare exemplu folosește formatul Unsloth cu state pentru text, questions pentru întrebarea fixă și opțiuni, respectiv gold pentru eticheta corectă la antrenare. Întrebarea este „Stabilește originea textului: redactat de un om sau generat de inteligență artificială.” Criteriile sunt human și ai. La inferență intră numai textul și această întrebare; URL-ul, numele generatorului, identificatorii și eticheta rămân în metadate. [2, 3]
+
+Qwen3.5-4B este încărcat în 4 biți și adaptat cu LoRA și un cap de decizie Clef. Cuantizarea bazei nu înseamnă că toate activările sau operațiile folosesc 4 biți. Aproximativ 64,5 milioane de parametri sunt antrenabili, adică 2,10% din totalul raportat de trainer. Restul bazei nu este reantrenat integral.
+
+| Parametru | v1 | v3 |
+|---|---|---|
+| Model de bază | unsloth/Qwen3.5-4B | același identificator |
+| LoRA rank / alpha / dropout | 16 / 16 / 0 | 16 / 16 / 0 |
+| Epoci / pași | 1 / 278 | 1 / 348 |
+| Batch / acumulare / batch efectiv | 1 / 16 / 16 | 1 / 16 / 16 |
+| Learning rate / seed | 0,0002 / 3407 | 0,0002 / 3407 |
+| Context | 12.288 tokeni | 12.288 tokeni |
+| Accelerator de antrenare | Tesla T4, Colab | Tesla T4, Colab |
+| Prag de decizie | p_ai >= 0,5 | p_ai >= 0,5 |
+
+**Context și atenție.** Auditul a găsit intrări de până la 10.465 de tokeni, peste contextul inițial de 2.048. Limita de 12.288 a permis păstrarea textelor. Pe T4, o adaptare restrânsă a căii Transformers repetă explicit capetele K/V înaintea atenției eficiente. Testele mici au comparat ieșiri și gradienți, iar pilotul a observat forward și backward eficiente, fără backendul math SDPA în acel pilot. Nu generalizăm această observație de profiler la orice mediu viitor.
+
+**Antrenare și persistență.** Gradienții se acumulează pentru 16 exemple înaintea unei actualizări. Optimizarea folosește scheduler cosine și warmup. Au fost salvate checkpointuri cu adaptor, cap de decizie, optimizator și scheduler. Întreruperile au fost recuperate din checkpoint-160 pentru v1 și checkpoint-100 pentru v3. Duratele din apelurile reluate nu reprezintă automat durata totală a experimentului.
+
+**Calibrare.** Probabilitățile sunt ajustate exclusiv pe partiția dedicată. Pragul 0,5 rămâne fix și nu este optimizat pe test. Artefactele GPU înregistrează PyTorch 2.8.0, Transformers 5.2.0 și Unsloth/Unsloth Zoo 2026.10.7. Rulările CPU folosesc alte versiuni și float32; identitatea adaptorului este verificată separat de identitatea mediului. [3, 5, 6]
+
+
+## 5. Prima încercare: performanță internă ridicată
+
+Testul v1 conține 565 de texte umane și 389 AI. Au fost clasificate corect 952/954: TN=564, FP=1, TP=388 și FN=1. Acuratețea este **99,79%**, recall AI **99,74%**, iar rata fals pozitive **0,177%**. Generatorii din test sunt reprezentați și în antrenare. [3]
+
+| Model-sursă | AI detectate / test | FP | Rată FP |
+|---|---|---|---|
+| Gemma3-1B | 33/33 | 0 | 0,00% |
+| Gemma3-270M | 24/24 | 0 | 0,00% |
+| Qwen2.5-0.5B | 30/30 | 0 | 0,00% |
+| Qwen2.5-1.5B | 30/30 | 0 | 0,00% |
+| Qwen2.5-3B | 29/30 | 0 | 0,00% |
+| Qwen3.5-0.8B | 129/129 | 0 | 0,00% |
+| Qwen3.5-2B | 80/80 | 0 | 0,00% |
+| Qwen3.5-4B | 33/33 | 0 | 0,00% |
+
+Rezultatele per generator folosesc textele AI ale acelui generator și controalele umane asociate surselor, nu toate textele umane din test. Controalele pot apărea în mai multe rânduri, deci denominatorii nu se însumează. Un FP asociat mai multor generatoare nu devine automat mai multe erori în scorul global.
+
+**Calibrare și încredere.** API-ul raportează pe cele 955 de exemple de calibrare acuratețe 1,0 și ECE aproximativ 2,62 × 10^-9. Pe test, ECE recalculat este 0,002096 și log-loss 0,057927. Probabilitățile de test salvate sunt 0 sau 1, inclusiv pentru cele două erori. Aceste valori nu trebuie interpretate drept certitudine privind autoratul.
+
+**Suplimentul de sampling.** După v1 au fost generate 120 de texte Qwen2.5 pe 30 de surse, cu 1.5B și 3B, câte două profiluri. Toate cele 120 AI și cele 30 de controale umane au fost clasificate corect în Colab. Fiecare grupă are 30 AI, iar aceleași 30 de controale sunt reutilizate. Nu s-a observat o diferență între profiluri în acest eșantion; eșantionul nu demonstrează echivalența lor generală. [4]
+
+Suplimentul are și o limită de construcție: controalele umane au aproximativ 80-99 de cuvinte, iar ținta AI a fost 100. Diferența de lungime, proveniența unică și doar 30 de surse restrâng concluzia. Rezultatele au justificat o verificare mai dificilă, nu declararea detectorului drept soluție generală.
+
+
+## 6. Evaluarea locală a versiunii inițiale pe ChatGPT
+
+După antrenarea și calibrarea v1 au fost produse șapte loturi ChatGPT de câte 100 de texte și două piloturi. Detectorul a fost păstrat înghețat. Cele trei rulări CPU au acoperit toate cele **702 texte AI**, fără suprapuneri sau omisiuni în inventarul verificat. În prima rulare au fost incluse separat 100 de articole umane de control. [5]
+
+| Eticheta generatorului | AI test | TP | FN | Recall AI |
+|---|---|---|---|---|
+| GPT-5.6 Sol | 100 | 42 | 58 | 42,00% |
+| GPT-5.6 Luna Light | 100 | 25 | 75 | 25,00% |
+| GPT-5.6 Terra Light | 100 | 42 | 58 | 42,00% |
+| GPT-6 Luna Light | 100 | 44 | 56 | 44,00% |
+| GPT-6 Sol Light | 100 | 46 | 54 | 46,00% |
+| GPT-6 Astra Light | 100 | 40 | 60 | 40,00% |
+| GPT-6.1 Sol Light | 100 | 43 | 57 | 43,00% |
+| ChatGPT; Thinking effort Medium | 2 | 1 | 1 | 50,00% |
+
+Rezultatul agregat AI este **283/702 detectate (40,31%)**, cu **419 fals negative (59,69%)**. Cele 100 de controale umane au fost clasificate corect. Pentru lotul local cumulat, TN=100, FP=0, TP=283, FN=419: acuratețe 383/802 = **47,76%**, acuratețe echilibrată **70,16%**. Recall AI este metrică principală pentru loturile exclusiv AI; lipsa erorilor pe 100 de controale nu înseamnă risc nul pe orice text uman.
+
+**Calibrarea nu se transferă automat.** Din cele 419 texte GPT ratate, 410 au primit p_ai <= 0,01. Modelul a fost frecvent foarte sigur pe o clasificare greșită. Aceasta arată de ce calibrarea măsurată în corpusul inițial trebuie reevaluată când distribuția se schimbă.
+
+**Controlul conversiei pe CPU.** Vechiul test de 954 a fost rerulat local și a păstrat acuratețea 952/954, dar cu TN=563, FP=2, TP=389 și FN=0. Aceeași acuratețe cu erori diferite nu certifică echivalență numerică GPU/CPU. Totuși, nu observăm o degradare masivă pe corpusul vechi care să explice singură scorul GPT.
+
+Luna Light GPT-5.6 are cel mai mic recall observat dintre loturile principale: 25%. Celelalte variază între 40% și 46%. Diferențele sunt descriptive: sursele, lungimile și cererile nu sunt controlate identic, iar etichetele UI nu identifică independent implementarea backendului.
+
+
+## 7. Noua încercare: corpusul extins și rezultatele v3
+
+Versiunea v3 reprezintă o nouă adaptare a bazei Qwen3.5-4B. Nu este o continuare a adaptorului calibrat v1 și nu înlocuiește retroactiv măsurătorile lui. Corpusul include 4.524 de texte umane și 3.426 AI, inclusiv generările ChatGPT și suplimentul Qwen. Au fost refăcute gruparea și partițiile. [6]
+
+Calibrarea pe 1.194 exemple a raportat 1.193 corecte, acuratețe 99,916%, ECE 0,000223 și loss 0,012662. Testul de 1.199 exemple are TN=679, FP=0, TP=520, FN=0: **acuratețe și recall AI 100%**, rată FP observată 0%. ECE pe test este 0,000640, Brier 0,000001038 și log-loss 0,000641.
+
+| Model-sursă | AI corecte / test | Uman asociat | FP / FN |
+|---|---|---|---|
+| GPT-5.6 Luna Light | 15/15 | 15 | 0 / 0 |
+| GPT-5.6 Sol | 15/15 | 15 | 0 / 0 |
+| GPT-5.6 Terra Light | 15/15 | 15 | 0 / 0 |
+| GPT-6 Astra Light | 15/15 | 15 | 0 / 0 |
+| GPT-6 Luna Light | 15/15 | 15 | 0 / 0 |
+| GPT-6 Sol Light | 15/15 | 15 | 0 / 0 |
+| GPT-6.1 Sol Light | 15/15 | 15 | 0 / 0 |
+| gemma3:1b | 34/34 | 34 | 0 / 0 |
+| gemma3:270m | 24/24 | 24 | 0 / 0 |
+| qwen2.5-0.5b-instruct-q4_k_m | 31/31 | 31 | 0 / 0 |
+| qwen2.5-1.5b-instruct-q4_k_m | 31/31 | 31 | 0 / 0 |
+| qwen2.5-3b-instruct-q4_k_m | 31/31 | 31 | 0 / 0 |
+| qwen2.5:1.5b | 8/8 | 4 | 0 / 0 |
+| qwen2.5:3b | 8/8 | 4 | 0 / 0 |
+| qwen3.5:0.8b | 132/132 | 129 | 0 / 0 |
+| qwen3.5:2b | 83/83 | 83 | 0 / 0 |
+| qwen3.5:4b | 33/33 | 33 | 0 / 0 |
+
+Intervalele Wilson 95% raportate sunt 99,267%-100% pentru recall AI și 0%-0,563% pentru rata FP. Ele descriu incertitudinea binomială, fără corecție pentru dependențe reziduale între evenimente. Controalele per model se pot repeta. Pentru unele grupe există doar 8 sau 15 AI, insuficient pentru un clasament stabil.
+
+**Limita principală:** generatoarele sunt cunoscute în antrenare, iar surse evaluate anterior intră în noua împărțire. V3 este un rezultat intern exploratoriu, nu validarea pe un lot extern neatins. Nu atribuim trecerea de la recall GPT 40,31% la test intern 100% exclusiv extinderii datelor, deoarece s-au schimbat și observațiile de test.
+
+
+## 8. Exemple: calitatea generării și erorile v1
+
+Exemplele sunt selectate deliberat pentru a ilustra mecanisme de interpretare, nu ca eșantion reprezentativ pentru estimarea performanței. Selecția nu modifică scorurile globale. Fragmentele păstrează formulările originale; eventualele erori sau afirmații fictive din ieșirile AI nu sunt asumate drept fapte. Calitatea textului și corectitudinea detecției sunt două axe distincte.
+
+### E1. Răspuns metatextual detectat corect
+
+**Origine:** AI. **Predicție:** AI. **p_ai salvat:** 1.0. **Evaluare:** v1 / test Colab.
+
+> Okay, I have read the provided text and created a short, factual article about the social aspects of Dealul Leului.
+
+Răspunsul este în engleză și descrie executarea sarcinii, în loc să furnizeze știrea în română. Detecția corectă nu certifică performanța pe articole sintetice de calitate.
+
+Generator/sursă: `gemma3:270m`. Fragment de 20 cuvinte, fără corectarea formulărilor originale. Identificatorul integral și hash-ul: cazul E1 din rezultate/exemple.json.
+
+### E2. Text incoerent, dar fals negativ
+
+**Origine:** AI. **Predicție:** uman. **p_ai salvat:** 0.0. **Evaluare:** v1 / test Colab.
+
+> Pe data de 3 octombrie 2018, într-un eveniment fictiv plauzibil, președintele Guvernului Republicii Moldova, Silvia Radu, și președintele Guvernului Republicii Turcia, Nicolae Ciubuc, au convenit asupra unui nou plan de coopare economică. Întreprinderile de stat și complexul Întreprinderii de Stat, Casa Presei și Căuşeni a Aleii, au avut rolul de exemplu în această cooperare. Sfârșitul de șefilor de staturi a fost urmat de o întâlnire a căștigătorilor de la premiul Marelui Premiu. Întreprinderile de stat au fost învinsă la câteva premii, în timp […]
+
+Fragmentul atribuie roluri incompatibile entităților și conține formulări precum „coopare” și „Sfârșitul de șefilor de staturi”. Observația este o analiză calitativă, fără verificare factuală exhaustivă. Chiar și acest răspuns cu probleme a fost etichetat uman cu probabilitate AI salvată 0.
+
+Generator/sursă: `qwen2.5-3b-instruct-q4_k_m`. Fragment de 83 cuvinte, fără corectarea formulărilor originale. Identificatorul integral și hash-ul: cazul E2 din rezultate/exemple.json.
+
+### E3. Text de arhivă uman etichetat greșit AI
+
+**Origine:** uman (etichetă de corpus). **Predicție:** AI. **p_ai salvat:** 1.0. **Evaluare:** v1 / test Colab.
+
+> Ședința săptămânală a serviciilor Primăriei Chișinău din 22 octombrie 2018. Astăzi, pe ordinea de zi a şedinţei au fost incluse mai multe […]
+
+Articolul are structură de ordine de zi, cu enumerări și raportori. Este un fals pozitiv în raport cu eticheta corpusului, nu o dovadă că textul ar fi generat de AI. Nu atribuim cauzal eroarea formatării.
+
+Generator/sursă: `human`. Fragment de 22 cuvinte, fără corectarea formulărilor originale. Identificatorul integral și hash-ul: cazul E3 din rezultate/exemple.json.
+
+
+E1 arată un răspuns cu nerespectarea sarcinii, detectat corect. E2 arată că un text incoerent poate totuși produce un fals negativ. E3 arată riscul operațional de a interpreta o probabilitate mare drept dovadă de autorat AI. Niciunul dintre aceste cazuri nu explică singur decizia internă a modelului.
+
+
+## 9. Exemple: texte fluente și interpretarea versiunii v3
+
+### E4. Știre fluentă GPT ratată de v1
+
+**Origine:** AI. **Predicție:** uman. **p_ai salvat:** 0.0. **Evaluare:** v1 / CPU local, după antrenare.
+
+> Regia Transport Electric Chișinău verifică împrejurările unui incident produs la 8 decembrie într-un troleibuz din capitală. O pasageră a avut nevoie de îngrijiri medicale după ce vehiculul a frânat, iar ceilalți călători au coborât în stația următoare. Femeia a fost transportată la Spitalul de Urgență pentru examinare. La 11 decembrie, reprezentanții întreprinderii au început să examineze înregistrările disponibile și documentele de traseu pentru a stabili succesiunea evenimentelor. Cristina Gorea a solicitat clarificări privind intervenția șoferului și felul în care a […]
+
+Textul prezintă paragrafe și un registru jurnalistic relativ coerent. Aceasta este o apreciere de lizibilitate a fragmentului, nu o confirmare a faptelor. Detectorul îl ratează, deși proveniența generării este cunoscută.
+
+Generator/sursă: `GPT-6 Sol Light`. Fragment de 80 cuvinte, fără corectarea formulărilor originale. Identificatorul integral și hash-ul: cazul E4 din rezultate/exemple.json.
+
+### E5. Știre fluentă GPT detectată de v1
+
+**Origine:** AI. **Predicție:** AI. **p_ai salvat:** 1.0. **Evaluare:** v1 / CPU local, după antrenare.
+
+> Inspectoratul General al Poliției analizează sesizările primite după un incident petrecut într-un cartier rezidențial, unde mai mulți locatari au reclamat că un conflict între vecini a tulburat liniștea publică. Un echipaj a mers la fața locului și a discutat separat cu persoanele implicate. Mariana Bețivu a precizat că polițiștii verifică relatările martorilor și eventualele imagini surprinse în zonă. Până la încheierea acestor verificări, instituția nu poate stabili dacă este necesară aplicarea unei sancțiuni. Persoanele implicate au fost informate despre posibilitatea […]
+
+Textul prezintă paragrafe și un registru jurnalistic relativ coerent. Aceasta este o apreciere de lizibilitate a fragmentului, nu o confirmare a faptelor. Detectorul îl identifică drept AI. Nu deducem din acest caz ce trăsătură a determinat decizia.
+
+Generator/sursă: `GPT-6 Sol Light`. Fragment de 80 cuvinte, fără corectarea formulărilor originale. Identificatorul integral și hash-ul: cazul E5 din rezultate/exemple.json.
+
+### E6. Detecție corectă în testul intern v3
+
+**Origine:** AI. **Predicție:** AI. **p_ai salvat:** 0.9997. **Evaluare:** v3 / test intern Colab.
+
+> La 10 ani de la criza financiară globală, economiștii continuă să analizeze efectele acesteia asupra economiilor mici și vulnerabile, inclusiv asupra Republicii Moldova. Prăbușirea Lehman Brothers în 2008 a devenit unul dintre simbolurile crizei care a afectat sistemul financiar internațional și a provocat o reducere puternică a comerțului, investițiilor și consumului. Criza a fost comparată frecvent cu Marea Depresie începută în 1929 și amplificată până în 1933. Deși mecanismele economice și răspunsurile instituțiilor au fost […]
+
+Cazul aparține testului intern v3. Familia generatorului este reprezentată în antrenarea v3. Nu îl folosim ca probă de generalizare la o familie necunoscută și nu construim o comparație cauzală cu exemplele anterioare.
+
+Generator/sursă: `GPT-5.6 Sol`. Fragment de 75 cuvinte, fără corectarea formulărilor originale. Identificatorul integral și hash-ul: cazul E6 din rezultate/exemple.json.
+
+
+Fragmentele E4 și E5 provin din aceeași etichetă de generator, dar au predicții opuse. Un stil jurnalistic lizibil nu garantează detecția și nici detecția corectă nu dovedește existența unei semnături universale a generatorului. E6 ilustrează succesul intern v3 în condițiile protocolului său. Nu este o probă independentă că detectorul nou ar păstra scorul pe următoarea familie de modele.
+
+Identificatorii, hash-urile textelor integrale și toate fragmentele sunt păstrate în fișierul de exemple al livrării. Pentru articolul uman este reprodus doar un fragment scurt; sursa poate fi urmărită în metadatele corpusului. Textele sintetice sunt materiale de cercetare și pot conține informații inventate.
+
+
+## 10. Validitate, reproductibilitate și concluzii
+
+**Validitate internă.** Separarea pe surse, hash-urile, verificările de integritate și etichetele ținute în afara predictorului reduc erorile de implementare și suprapunerile triviale. Nu certifică absența oricărei contaminări semantice sau memorări. Exemplele slabe pot simplifica artificial o parte a sarcinii. Nu am rulat ablații care să izoleze lungimea, limba, formatarea sau metacomentariile.
+
+**Validitate externă.** Corpusul uman provine dintr-o singură publicație. O parte din sursele GPT erau cunoscute: 71/100 surse Luna și 79/100 Terra din seria GPT-5.6 apar în train v1. Pentru Sol nu apar în train, dar sunt în corpusul inițial. Loturile GPT extind generatorii, nu certifică evenimente complet noi. Testul v3 reutilizează un univers de date deja analizat.
+
+**Reproductibilitate inginerească.** Artefactele păstrează partițiile, cererile, opțiunile disponibile, predicțiile, configurațiile și hash-urile. Notebookurile descarcă date verificate și separă prepare, pilot, train, calibrate și evaluate în fluxul v3. Checkpointurile au permis reluarea după întreruperi. Această trasabilitate nu garantează reproducere bit cu bit: configurațiile GPU au base_revision nul, versiunile externe pot evolua, iar setările numerice web nu sunt disponibile. Adaptorul v1 pentru CPU are fingerprint și revizie de bază fixate.
+
+**Livrare.** Primul repository devine punctul de intrare al studiului integrat. Notebookul și datele istorice v1 rămân disponibile, alături de rezultatele evaluării locale, datele și notebookul v3. Raportul v1 anterior este păstrat separat. Modelul calibrat nu este inclus în Git; arhivele de greutăți se distribuie separat. Notebookurile adaptate pentru livrare au verificări locale, dar nu pretindem o nouă antrenare GPU integrală pentru fiecare modificare de ambalare.
+
+**Concluzie.** Prima încercare separă foarte bine corpusul său intern, dar detectează doar 40,31% din textele GPT ulterioare. A doua încercare, v3, obține 100% pe un test intern nou după extinderea corpusului. Succesiunea susține nevoia evaluării pe distribuții noi și a verificării calibrării după schimbarea lor. Nu susține un detector general de autorat. O validare viitoare ar necesita publicații și generatoare absente din antrenare, un lot înghețat înaintea evaluării și ablații controlate.
+
+**Asistență în dezvoltare.** Implementarea și redactarea au folosit asistență AI. Afirmațiile experimentale din raport sunt legate de artefactele și rezultatele salvate; interpretarea și asumarea lor la susținere rămân responsabilitatea echipei.
+
+### Referințe și proveniență
+
+[1] Cerințele cursului, tema 6 și livrabilele generale. Document Google consultat la 26.10.2026: https://docs.google.com/document/d/15qSv9qbql_9y1rEXSOortlhS9634x-wiV3XrbedCAco/edit
+
+[2] Unsloth, Train your own Decision Model with Unsloth, consultat la 26.10.2026: https://unsloth.ai/docs/basics/train-your-own-decision-model-with-unsloth . Documentația este actualizabilă; artefactele locale descriu configurația efectiv rulată.
+
+[3] Artefactele v1: run_config.json, calibration_metrics.json, test_metrics.json, test_predictions.jsonl, corpusul și notebookul adaptat.
+
+[4] Supliment Qwen2.5: protocolul și rezultatele qwen25_sampling_supplement_v1, 150 de predicții, două profiluri.
+
+[5] Evaluarea locală v1: cele trei rulări CPU, cheile separate și 802 înregistrări verificate, dintre care 702 GPT.
+
+[6] Artefactele v3: corpusul complet, configurația, calibrarea și cele 1.199 de predicții de test. Repository separat păstrat: https://github.com/Neculai13/SDCGIA-v3 .
+
+[7] Arhiva UNIMEDIA: URL-urile originale sunt păstrate în proveniența corpusului. Articolele terților își păstrează drepturile. Nu atribuim o licență deschisă corpusului jurnalistic.

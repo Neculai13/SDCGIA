@@ -1,0 +1,288 @@
+{
+  "fingerprint": "bde45980a57d5a2be449e6442f899146ed6eff87d192490b85410330793bd140",
+  "gpt_groups": [
+    {
+      "n": 100,
+      "tp": 42,
+      "fn": 58,
+      "tn": 0,
+      "fp": 0,
+      "accuracy": 0.42,
+      "recall_ai": 0.42,
+      "fpr": null,
+      "model": "GPT-5.6 Sol",
+      "generated": 100,
+      "missed_confident": 56
+    },
+    {
+      "n": 100,
+      "tp": 25,
+      "fn": 75,
+      "tn": 0,
+      "fp": 0,
+      "accuracy": 0.25,
+      "recall_ai": 0.25,
+      "fpr": null,
+      "model": "GPT-5.6 Luna Light",
+      "generated": 100,
+      "missed_confident": 74
+    },
+    {
+      "n": 100,
+      "tp": 42,
+      "fn": 58,
+      "tn": 0,
+      "fp": 0,
+      "accuracy": 0.42,
+      "recall_ai": 0.42,
+      "fpr": null,
+      "model": "GPT-5.6 Terra Light",
+      "generated": 100,
+      "missed_confident": 58
+    },
+    {
+      "n": 100,
+      "tp": 44,
+      "fn": 56,
+      "tn": 0,
+      "fp": 0,
+      "accuracy": 0.44,
+      "recall_ai": 0.44,
+      "fpr": null,
+      "model": "GPT-6 Luna Light",
+      "generated": 100,
+      "missed_confident": 53
+    },
+    {
+      "n": 100,
+      "tp": 46,
+      "fn": 54,
+      "tn": 0,
+      "fp": 0,
+      "accuracy": 0.46,
+      "recall_ai": 0.46,
+      "fpr": null,
+      "model": "GPT-6 Sol Light",
+      "generated": 100,
+      "missed_confident": 53
+    },
+    {
+      "n": 100,
+      "tp": 40,
+      "fn": 60,
+      "tn": 0,
+      "fp": 0,
+      "accuracy": 0.4,
+      "recall_ai": 0.4,
+      "fpr": null,
+      "model": "GPT-6 Astra Light",
+      "generated": 100,
+      "missed_confident": 60
+    },
+    {
+      "n": 100,
+      "tp": 43,
+      "fn": 57,
+      "tn": 0,
+      "fp": 0,
+      "accuracy": 0.43,
+      "recall_ai": 0.43,
+      "fpr": null,
+      "model": "GPT-6.1 Sol Light",
+      "generated": 100,
+      "missed_confident": 56
+    },
+    {
+      "n": 2,
+      "tp": 1,
+      "fn": 1,
+      "tn": 0,
+      "fp": 0,
+      "accuracy": 0.5,
+      "recall_ai": 0.5,
+      "fpr": null,
+      "model": "ChatGPT; Thinking effort Medium",
+      "generated": 2,
+      "missed_confident": 0
+    }
+  ],
+  "gpt_total": {
+    "n": 702,
+    "tp": 283,
+    "fn": 419,
+    "tn": 0,
+    "fp": 0,
+    "accuracy": 0.4031339031339031,
+    "recall_ai": 0.4031339031339031,
+    "fpr": null
+  },
+  "protocol": "Frozen calibrated v1, local CPU float32; threshold 0.5; 702 GPT + 100 unique human controls.",
+  "gpt_n": 702,
+  "gpt_tp": 283,
+  "gpt_fn": 419,
+  "gpt_recall": 0.4031339031339031,
+  "human_n": 100,
+  "human_tn": 100,
+  "human_fp": 0,
+  "mixed_accuracy": 0.4775561097256858,
+  "supplement_qwen": {
+    "experiment_id": "qwen25_sampling_supplement_v1",
+    "threshold": 0.5,
+    "overall": {
+      "n": 150,
+      "human_n": 30,
+      "ai_n": 120,
+      "tp": 120,
+      "tn": 30,
+      "fp": 0,
+      "fn": 0,
+      "accuracy": 1.0,
+      "false_positive_rate": 0.0,
+      "false_negative_rate": 0.0,
+      "ai_recall": 1.0,
+      "fpr_wilson95": [
+        0,
+        0.11351339317396321
+      ],
+      "ai_recall_wilson95": [
+        0.9689808335812982,
+        1
+      ],
+      "balanced_accuracy": 1.0,
+      "brier": 0.0,
+      "log_loss": -0.0,
+      "ece_10_equal_width_confidence_bins": 0.0
+    },
+    "unique_human_controls": 30,
+    "attempted_ai": 120,
+    "included_nonempty_ai": 120,
+    "per_cell": {
+      "qwen2.5:1.5b / conservative": {
+        "n": 60,
+        "human_n": 30,
+        "ai_n": 30,
+        "tp": 30,
+        "tn": 30,
+        "fp": 0,
+        "fn": 0,
+        "accuracy": 1.0,
+        "false_positive_rate": 0.0,
+        "false_negative_rate": 0.0,
+        "ai_recall": 1.0,
+        "fpr_wilson95": [
+          0,
+          0.11351339317396321
+        ],
+        "ai_recall_wilson95": [
+          0.8864866068260369,
+          1
+        ],
+        "balanced_accuracy": 1.0,
+        "brier": 0.0,
+        "log_loss": -0.0,
+        "ece_10_equal_width_confidence_bins": 0.0
+      },
+      "qwen2.5:1.5b / varied": {
+        "n": 60,
+        "human_n": 30,
+        "ai_n": 30,
+        "tp": 30,
+        "tn": 30,
+        "fp": 0,
+        "fn": 0,
+        "accuracy": 1.0,
+        "false_positive_rate": 0.0,
+        "false_negative_rate": 0.0,
+        "ai_recall": 1.0,
+        "fpr_wilson95": [
+          0,
+          0.11351339317396321
+        ],
+        "ai_recall_wilson95": [
+          0.8864866068260369,
+          1
+        ],
+        "balanced_accuracy": 1.0,
+        "brier": 0.0,
+        "log_loss": -0.0,
+        "ece_10_equal_width_confidence_bins": 0.0
+      },
+      "qwen2.5:3b / conservative": {
+        "n": 60,
+        "human_n": 30,
+        "ai_n": 30,
+        "tp": 30,
+        "tn": 30,
+        "fp": 0,
+        "fn": 0,
+        "accuracy": 1.0,
+        "false_positive_rate": 0.0,
+        "false_negative_rate": 0.0,
+        "ai_recall": 1.0,
+        "fpr_wilson95": [
+          0,
+          0.11351339317396321
+        ],
+        "ai_recall_wilson95": [
+          0.8864866068260369,
+          1
+        ],
+        "balanced_accuracy": 1.0,
+        "brier": 0.0,
+        "log_loss": -0.0,
+        "ece_10_equal_width_confidence_bins": 0.0
+      },
+      "qwen2.5:3b / varied": {
+        "n": 60,
+        "human_n": 30,
+        "ai_n": 30,
+        "tp": 30,
+        "tn": 30,
+        "fp": 0,
+        "fn": 0,
+        "accuracy": 1.0,
+        "false_positive_rate": 0.0,
+        "false_negative_rate": 0.0,
+        "ai_recall": 1.0,
+        "fpr_wilson95": [
+          0,
+          0.11351339317396321
+        ],
+        "ai_recall_wilson95": [
+          0.8864866068260369,
+          1
+        ],
+        "balanced_accuracy": 1.0,
+        "brier": 0.0,
+        "log_loss": -0.0,
+        "ece_10_equal_width_confidence_bins": 0.0
+      }
+    },
+    "sampling_paired_tests": {
+      "qwen2.5:1.5b": {
+        "paired_sources": 30,
+        "conservative_only_detected": 0,
+        "varied_only_detected": 0,
+        "mcnemar_exact_two_sided_p": 1.0
+      },
+      "qwen2.5:3b": {
+        "paired_sources": 30,
+        "conservative_only_detected": 0,
+        "varied_only_detected": 0,
+        "mcnemar_exact_two_sided_p": 1.0
+      }
+    },
+    "probabilities_at_extremes": 150,
+    "caveats": [
+      "Human controls are 80–99 words; AI target is 100 words. This length mismatch limits interpretation.",
+      "Historical human authorship presumed; not certified.",
+      "Original IDs, known similarity components and normalized exact text are disjoint. Semantic independence is not certified.",
+      "All eight generator variants were represented in original training; these are new sources, not unseen model families.",
+      "Only 30 source clusters; comparisons are paired, not 120 independent sources.",
+      "Global accuracy uses 120 planned AI texts and only 30 unique human controls, unlike the original test balance.",
+      "The same 30 human controls are reused for every cell; do not sum subgroup denominators.",
+      "Paired tests are descriptive, unadjusted for multiple comparisons; small samples cannot establish a generator ranking."
+    ]
+  },
+  "warning": "Qwen supplement: generated locally, evaluated on Colab GPU. GPT batches are local CPU evaluations. Web model names are recorded interface labels, not independently verified API identifiers."
+}

@@ -1,0 +1,223 @@
+{
+  "attention_fix": {
+    "policy": "t4_explicit_kv_transformers_selector_v1",
+    "scope": "T4 CUDA float16 K/V heads=4 head_dim=256 mask=None",
+    "versions": {
+      "torch": "2.8.0",
+      "transformers": "5.2.0",
+      "unsloth": "2026.10.7",
+      "unsloth_zoo": "2026.10.7"
+    },
+    "transformers_sdpa_source_sha256": "87f933d1a2d8508df572da5c0748c6b24c22ff2b625796949957dcd86cc57564",
+    "model_weights_changed": false,
+    "dtype_changed": false,
+    "article_text_changed": false,
+    "selector": "explicit_repeat_kv_via_existing_transformers_path",
+    "bypassed_native_gqa_calls": 30208,
+    "observed_key_shapes_before_repeat": [
+      [
+        1,
+        4,
+        277,
+        256
+      ],
+      [
+        1,
+        4,
+        354,
+        256
+      ],
+      [
+        1,
+        4,
+        356,
+        256
+      ],
+      [
+        1,
+        4,
+        363,
+        256
+      ],
+      [
+        1,
+        4,
+        389,
+        256
+      ],
+      [
+        1,
+        4,
+        399,
+        256
+      ],
+      [
+        1,
+        4,
+        433,
+        256
+      ],
+      [
+        1,
+        4,
+        453,
+        256
+      ],
+      [
+        1,
+        4,
+        460,
+        256
+      ],
+      [
+        1,
+        4,
+        466,
+        256
+      ],
+      [
+        1,
+        4,
+        478,
+        256
+      ],
+      [
+        1,
+        4,
+        569,
+        256
+      ],
+      [
+        1,
+        4,
+        578,
+        256
+      ],
+      [
+        1,
+        4,
+        580,
+        256
+      ],
+      [
+        1,
+        4,
+        582,
+        256
+      ],
+      [
+        1,
+        4,
+        603,
+        256
+      ],
+      [
+        1,
+        4,
+        641,
+        256
+      ],
+      [
+        1,
+        4,
+        662,
+        256
+      ],
+      [
+        1,
+        4,
+        711,
+        256
+      ],
+      [
+        1,
+        4,
+        736,
+        256
+      ],
+      [
+        1,
+        4,
+        785,
+        256
+      ],
+      [
+        1,
+        4,
+        811,
+        256
+      ],
+      [
+        1,
+        4,
+        933,
+        256
+      ],
+      [
+        1,
+        4,
+        934,
+        256
+      ],
+      [
+        1,
+        4,
+        941,
+        256
+      ],
+      [
+        1,
+        4,
+        979,
+        256
+      ],
+      [
+        1,
+        4,
+        984,
+        256
+      ],
+      [
+        1,
+        4,
+        990,
+        256
+      ],
+      [
+        1,
+        4,
+        1155,
+        256
+      ],
+      [
+        1,
+        4,
+        1168,
+        256
+      ],
+      [
+        1,
+        4,
+        1425,
+        256
+      ],
+      [
+        1,
+        4,
+        3192,
+        256
+      ]
+    ]
+  },
+  "mode": "train",
+  "training_metrics": {
+    "train_runtime": 4873.9364,
+    "train_samples_per_second": 0.913,
+    "train_steps_per_second": 0.057,
+    "total_flos": 0.0,
+    "train_loss": 0.0016367445592982057,
+    "epoch": 1.0
+  },
+  "seconds": 4931.108981851,
+  "peak_reserved_gib": 6.939453125
+}
