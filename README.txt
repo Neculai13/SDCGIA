@@ -17,7 +17,6 @@ DE CITIT
   raport.pdf - raportul integrat actual, cu metode, tabele, exemple si limite
   raport_sursa.txt - acelasi continut, in format text editabil
   rezultate/exemple.json - fragmente, identificatori, hash-uri si predictii
-  istoric/ - raportul si instructiunile anterioare v1, pastrate integral
 
 COD SI DATE
   notebook.ipynb - fluxul istoric v1; datele si codul lui au ramas neschimbate
@@ -72,10 +71,3 @@ INTERPRETARE
   certificati. Setarile numerice ale generarii web nu sunt disponibile.
   Qwen2.5 initial a fost generat prin llama.cpp; celelalte modele locale si
   suplimentul Qwen au folosit Ollama. Cerintele si abaterile sunt in raport.
-
-Repository-ul separat v3 ramane disponibil si neschimbat:
-  https://github.com/Neculai13/SDCGIA-v3
-Referinta Unsloth:
-  https://unsloth.ai/docs/basics/train-your-own-decision-model-with-unsloth
-Articolele UNIMEDIA isi pastreaza drepturile originale. Textele sintetice pot
-contine fictiune si erori. Predictiile nu constituie o dovada de autorat.
